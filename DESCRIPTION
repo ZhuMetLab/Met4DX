@@ -10,7 +10,7 @@ Description: More about what it does (maybe more than one line)
 Imports: SpectraTools (>= 0.2.8), BiocParallel, opentimsr, ggpmisc,
         smoother, Rcpp, splus2R, fastmatch
 LinkingTo: Rcpp
-License: What license is it under?
+License: CC BY-NC-ND 4.0
 RoxygenNote: 7.2.1
 Suggests: testthat (>= 3.0.0)
 NeedsCompilation: yes
