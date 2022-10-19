@@ -783,9 +783,10 @@ setMethod(
   signature = c("TimsData", "SearchParam", "MatchParam", "CombineParam"),
   function(object,
            search_param, match_param, combine_param,
-           lib_name = NULL, lib_file = NULL,
+           lib_file = NULL,
            rt_exp_file=NULL, rt_ref_file=NULL, 
-           level3_lib_file = NULL, level3_lib_info = NULL
+           level3_lib_file = NULL, level3_lib_info = NULL,
+           demo_mode = FALSE
            ) {
     # browser()
     wd0 <- getwd()
@@ -798,22 +799,30 @@ setMethod(
     files <- .tmp_files(object@files, object@experiment@tmp_dir, "identify_peaks")
     names(files) <- object@files
 
-    if (is.null(lib_name) && is.null(lib_file)) {
-      stop("Either lib_name or lib_file must be specified")
+    if (!demo_mode && is.null(lib_file)) {
+      stop("Either lib_file must be specified!")
     }
 
-    if (is.null(lib_file) & !is.null(lib_name)) {
-      lib_file <- system.file('lib_data', lib_name, package = getPackageName())
+    pkg <- getPackageName()
+    if (pkg == ".GlobalEnv") {
+      pkg <- "Met4DX"
     }
 
-    lib_data <- SpectraTools::ParseSpectra(SpectraTools::ParseSpectraParam('msp',
-                                                                           labelKeep = NULL,
-                                                                           labelName = NULL,
-                                                                           autoRename = TRUE, 
-                                                                           resDefineAt = 200, 
-                                                                           thrIntensityAbs = 0, 
-                                                                           ppmPrecursorFilter = 20),
-                                           lib_file)
+    if (demo_mode) {
+
+      lib_data <- SpectraTools:::ReadSpectraLib(system.file(package = pkg, "library",
+                                                           paste0('tims', object@experiment@ion_mode, '.lib')))
+    } else {
+      lib_data <- SpectraTools::ParseSpectra(SpectraTools::ParseSpectraParam('msp',
+                                                                             labelKeep = NULL,
+                                                                             labelName = NULL,
+                                                                             autoRename = TRUE,
+                                                                             resDefineAt = 200,
+                                                                             thrIntensityAbs = 0,
+                                                                             ppmPrecursorFilter = 20),
+                                             lib_file)
+
+    }
     # browser()
 
     lib_data <- SpectraTools::setRT(lib_data, object@experiment@lc_column)
@@ -825,7 +834,7 @@ setMethod(
       if (is.null(rt_ref_file)) {
         rt_ref_file <- system.file('rt_calibration',
                                    paste0(object@experiment@lc_column, '_', object@experiment@ion_mode, '.csv'),
-                                   package = getPackageName())
+                                   package = pkg)
       }
       rt_ref <- read.csv(rt_ref_file, stringsAsFactors = FALSE)
       rt_exp <- read.csv(rt_exp_file, stringsAsFactors = FALSE)
@@ -833,7 +842,7 @@ setMethod(
     if (search_param@scoreCCS) {
       adduct_table <- read.csv(system.file('adducts',
                                            paste0("adducts_", object@experiment@ion_mode, ".csv"),
-                                           package = getPackageName()), stringsAsFactors = FALSE)
+                                           package = pkg), stringsAsFactors = FALSE)
     } else {
       adduct_table <- NULL
     }
