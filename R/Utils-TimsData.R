@@ -155,6 +155,8 @@
                        force_max = FALSE) {
   if (is.null(data_smooth)) {
     data_smooth <- data_raw
+  } else {
+    data_smooth <- round(data_smooth, 10)
   }
 
   if (find_roi) {
