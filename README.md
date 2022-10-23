@@ -7,7 +7,7 @@ The docker image zhulab/mettracer-r contains entire envorienment for running `Me
 
 ## What is Met4DX
 
-`MetT4DX-r` is an Docker environment to processing isotope labelled metabolomics data with #Met4DX R package. It is based on the [`r-base`](https://hub.docker.com/_/r-base/) docker.
+`MetT4DX-r` is a Docker environment to processing isotope labelled metabolomics data with #Met4DX R package. It is based on the [`r-base`](https://hub.docker.com/_/r-base/) docker.
 
 ## Pulling image
 
@@ -22,10 +22,11 @@ docker pull zhulab/met4dx-r
 The data folder should contain raw data files (.d), and script and RT recalibration table (optional). Demo files could be downloaded from [`https://doi.org/10.5281/zenodo.7215544`](https://doi.org/10.5281/zenodo.7215544).
 - raw data files (.d): the .d files containing .mgf file converted from DataAnalysis. If the samples contained different experimental conditions and groups, corresponding sub-folder could be built in the root folder.
 - RT recalibration table: the table recording to the experimental RT values of RTQC sample, required for multidimenal match, and details could be found in our published protocol. [`http://metdna.zhulab.cn/metdna/help#2.6`](http://metdna.zhulab.cn/metdna/help#2.6).
-![Prepared data data](extra/imgs/file_prepare.png)
+
+- ![Prepared data data](extra/imgs/file_prepare.png)
 
 ## R script preparation
-To run the data processing, an R script named run.R should be placed in the data folder.
+To run the data processing, an R script named [run.R](extra/run.R) should be placed in the data folder.
 Here we provide an example. Users only need to change RT range,  ion mode and reference sample in the RT alignment step. Other parameters are recommended parameters.
 - Import parameters
   - rt_range: retention time range in second
@@ -139,14 +140,18 @@ docker run -it --rm -v "$PWD":/data -u $(id -u ${USER}):$(id -g ${USER}) zhulab/
 ## The result 
 
 After the data processing work done, a folder name 'results' would be generated in the root folder. 
+
 ![Example results](extra/imgs/result.png)
+
 The main results is listed following:
 - feature table named "features_filled.csv"
 - MS2 spectral file named "spectra.msp" 
 - the multidimensional match result named "result3_ScoreCombine_refined_level.csv"
-- an intermediate data called "spec_searched", containing m/z, RT and CCS match candidates to run MS-FINDER (version 3.24) in a WINDOWS computer with our provided R script.
-After running MS-FINDER and combining with "result3_ScoreCombine_refined_level.csv", users could obtain the final multidimensional match result named "ScoreCombine.csv" with the provided R script.
+- an intermediate data called "spec_searched", containing m/z, RT and CCS match candidates to run MS-FINDER (version 3.24).
 
+To run additional MSFinder filtering, users can run the demo [scripts we](extra/ForMSFinder/combine_final_result.R) and [MSFinder parameters](extra/ForMSFinder/MsfinderConsoleApp-Param.txt) provided here under Windows OS.
+After running MS-FINDER and combining with "result3_ScoreCombine_refined_level.csv", users could obtain the final multidimensional match result named "ScoreCombine.csv" with the provided R script.
+ 
 # License
 <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/4.0/88x31.png" /></a>
 
