@@ -23,7 +23,7 @@ The data folder should contain raw data files (.d), and script and RT recalibrat
 - raw data files (.d): the .d files containing .mgf file converted from DataAnalysis. If the samples contained different experimental conditions and groups, corresponding sub-folder could be built in the root folder.
 - RT recalibration table: the table recording to the experimental RT values of RTQC sample, required for multidimenal match, and details could be found in our published protocol. [`http://metdna.zhulab.cn/metdna/help#2.6`](http://metdna.zhulab.cn/metdna/help#2.6).
 
-- ![Prepared data data](extra/imgs/file_prepare.png)
+![Prepared data data](extra/imgs/file_prepare.png)
 
 ## R script preparation
 To run the data processing, an R script named [run.R](extra/run.R) should be placed in the data folder.
