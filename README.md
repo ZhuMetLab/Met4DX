@@ -5,7 +5,7 @@
 
 The docker image zhulab/met4dx-r contains entire environment for running `Met4DX`. For convenience and taking fully use of `Met4DX`, users can pull it and run `Met4DX` just as following.
 
-## What is Met4DX
+## What is Met4DX-r
 
 `Met4DX-r` is a Docker environment to processing Bruker timsPro 4D data with `Met4DX` R package. It is based on the [`r-base`](https://hub.docker.com/_/r-base/) docker.
 
