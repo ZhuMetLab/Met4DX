@@ -3,7 +3,7 @@
 ## Introduction
 `Met4DX` is an R package for timsPro 4D data processing.
 
-The docker image zhulab/met4dx-r contains entire environment for running `Met4DX`. For convenience and taking fully use of `Met4DX`, users can pull it and run `Met4DX` just as following.
+The docker image [`zhulab/met4dx-r`](https://hub.docker.com/r/zhulab/met4dx-r) contains entire environment for running `Met4DX`. For convenience and taking fully use of `Met4DX`, users can pull it and run `Met4DX` just as following.
 
 ## What is Met4DX-r
 
