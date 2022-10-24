@@ -3,57 +3,65 @@ wd <- '.'
 setwd(wd)
 
 ### read the spectra ####
-exp <- Experiment(wd = wd, nSlaves = 6, rt_range = c(0, 725), lc_column = 'HILIC', ion_mode = 'negative')
+exp <- Experiment(wd = wd,
+                  nSlaves = 6, # Number of threads to be used
+                  rt_range = c(0, 725), # RT rang for LC separation in seconds
+                  lc_column = 'HILIC', # LC column, either 'HILIC' or 'RP'
+                  ion_mode = 'negative')
 tims_data <- TimsData(exp)
-param <- ReadSpectraParam(intensity_from = "ms2_intensity",
-                          rerun = F)
+param <- ReadSpectraParam(intensity_from = "ms2_intensity", # pseudo presursor intensity when fragmentation
+                          rerun = FALSE)
 tims_data <- ReadSpectraData(tims_data, param)
 
 ### MS2 spectral dereplication ####
-param <- BinPrecursorParam(rerun = F)
+param <- BinPrecursorParam(rerun = FALSE)
 tims_data <- BinPrecursors(tims_data, param)
 
 
 ### Query MS1 data frame ####
-param <- QueryTimsDataParam(rerun = F)
+param <- QueryTimsDataParam(rerun = FALSE)
 tims_data <- QueryTimsData(tims_data, param)
 
 
 ### bottom-up assembly peak detection #####
-param <- ExtractIMDataParam(rerun = F,
+param <- ExtractIMDataParam(rerun = FALSE,
                             smooth_method = 'loess',
                             snthreshold = 3,
                             smooth_window_eim = 15,
                             order_column = "intensity",
                             peak_span_eim = 13,
                             peak_span_eic = 11,
-                            keep_profile = T)
+                            keep_profile = FALSE)
 tims_data <- ExtractIMData(tims_data, param)
-param <- DereplicatePeaksParam(rerun = F, match_msms = F)
+param <- DereplicatePeaksParam(rerun = FALSE, match_msms = FALSE)
 tims_data <- DereplicatePeaks(tims_data, param)
 
 ### RT alignment #####
-param <- CorrectRTLandmarksParam(rerun = F, ccs_tol = 2)
+param <- CorrectRTLandmarksParam(rerun = FALSE, ccs_tol = 2)
 tims_data <- CorrectRT(tims_data, param, ref_sample = "nist_urine_neg_1_p1-a1_1_4095.d")
 
 ### peak grouping ####
-param <- GroupDensityParam(rerun = F, plot_density = F, mz_bin_size = 0.015)
-dereplication_param <- DereplicatePeaksParam(mz_tol = 0.015/2, mobility_tol = 0.015/2, rt_tol = 5, rerun = F, order_column = 'area')
+param <- GroupDensityParam(rerun = FALSE, plot_density = FALSE, mz_bin_size = 0.015)
+dereplication_param <- DereplicatePeaksParam(mz_tol = 0.015/2,
+                                             mobility_tol = 0.015/2,
+                                             rt_tol = 5,
+                                             order_column = 'area',
+                                             rerun = FALSE)
 tims_data <- GroupPeaks(tims_data, param, dereplication_param)
 
 ### match sample between runs ####
-param <- MatchBetweenRunParam(rerun = F,
+param <- MatchBetweenRunParam(rerun = FALSE,
                               peak_span_eim = 13,
                               peak_span_eic = 11)
 tims_data <- MatchBetweenRuns(tims_data, param)
 
 ### finalize feature tbale ####
-param <- FinalizeFeatureParam(rerun = F,
+param <- FinalizeFeatureParam(rerun = FALSE,
                               col_max = 'target_intensity')
 tims_data <- FinalizeFeatures(tims_data, param)
 
 ### peak filling ####
-param <- FillPeakParam(rerun = F)
+param <- FillPeakParam(rerun = FALSE)
 tims_data <- FillPeaks(tims_data, param)
 
 ### metabolite identification ####

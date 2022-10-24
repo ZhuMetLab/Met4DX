@@ -3,15 +3,15 @@
 ## Introduction
 `Met4DX` is an R package for timsPro 4D data processing.
 
-The docker image zhulab/mettracer-r contains entire envorienment for running `Met4DX`. For convinience and taking fully use of `Met4DX`, users can pull it and run `Met4DX` just as following.
+The docker image zhulab/met4dx-r contains entire environment for running `Met4DX`. For convenience and taking fully use of `Met4DX`, users can pull it and run `Met4DX` just as following.
 
 ## What is Met4DX
 
-`MetT4DX-r` is a Docker environment to processing isotope labelled metabolomics data with #Met4DX R package. It is based on the [`r-base`](https://hub.docker.com/_/r-base/) docker.
+`Met4DX-r` is a Docker environment to processing Bruker timsPro 4D data with `Met4DX` R package. It is based on the [`r-base`](https://hub.docker.com/_/r-base/) docker.
 
 ## Pulling image
 
-Users can pull the MetTracer-r image with the following script
+Users can pull the Met4DX-r image with the following script
 
 ```bash
 docker pull zhulab/met4dx-r
@@ -21,7 +21,7 @@ docker pull zhulab/met4dx-r
 
 The data folder should contain raw data files (.d), and script and RT recalibration table (optional). Demo files could be downloaded from [`https://doi.org/10.5281/zenodo.7215544`](https://doi.org/10.5281/zenodo.7215544).
 - raw data files (.d): the .d files containing .mgf file converted from DataAnalysis. If the samples contained different experimental conditions and groups, corresponding sub-folder could be built in the root folder.
-- RT recalibration table: the table recording to the experimental RT values of RTQC sample, required for multidimenal match, and details could be found in our published protocol. [`http://metdna.zhulab.cn/metdna/help#2.6`](http://metdna.zhulab.cn/metdna/help#2.6).
+- RT recalibration table: the table recording to the experimental RT values of RTQC sample, required for multidimensional match, and details could be found in our published protocol. [`http://metdna.zhulab.cn/metdna/help#2.6`](http://metdna.zhulab.cn/metdna/help#2.6).
 
 ![Prepared data data](extra/imgs/file_prepare.png)
 
@@ -42,57 +42,65 @@ wd <- '.'
 setwd(wd)
 
 ### read the spectra ####
-exp <- Experiment(wd = wd, nSlaves = 6, rt_range = c(0, 725), lc_column = 'HILIC', ion_mode = 'negative')
+exp <- Experiment(wd = wd,
+                  nSlaves = 6, # Number of threads to be used
+                  rt_range = c(0, 725), # RT rang for LC separation in seconds
+                  lc_column = 'HILIC', # LC column, either 'HILIC' or 'RP'
+                  ion_mode = 'negative')
 tims_data <- TimsData(exp)
-param <- ReadSpectraParam(intensity_from = "ms2_intensity",
-                          rerun = F)
+param <- ReadSpectraParam(intensity_from = "ms2_intensity", # pseudo presursor intensity when fragmentation
+                          rerun = FALSE)
 tims_data <- ReadSpectraData(tims_data, param)
 
 ### MS2 spectral dereplication ####
-param <- BinPrecursorParam(rerun = F)
+param <- BinPrecursorParam(rerun = FALSE)
 tims_data <- BinPrecursors(tims_data, param)
 
 
 ### Query MS1 data frame ####
-param <- QueryTimsDataParam(rerun = F)
+param <- QueryTimsDataParam(rerun = FALSE)
 tims_data <- QueryTimsData(tims_data, param)
 
 
 ### bottom-up assembly peak detection #####
-param <- ExtractIMDataParam(rerun = F,
+param <- ExtractIMDataParam(rerun = FALSE,
                             smooth_method = 'loess',
                             snthreshold = 3,
                             smooth_window_eim = 15,
                             order_column = "intensity",
                             peak_span_eim = 13,
-                            peak_span_eic = 11, 
-                            keep_profile = T)
+                            peak_span_eic = 11,
+                            keep_profile = FALSE)
 tims_data <- ExtractIMData(tims_data, param)
-param <- DereplicatePeaksParam(rerun = F, match_msms = F)
+param <- DereplicatePeaksParam(rerun = FALSE, match_msms = FALSE)
 tims_data <- DereplicatePeaks(tims_data, param)
 
 ### RT alignment #####
-param <- CorrectRTLandmarksParam(rerun = F, ccs_tol = 2)
+param <- CorrectRTLandmarksParam(rerun = FALSE, ccs_tol = 2)
 tims_data <- CorrectRT(tims_data, param, ref_sample = "nist_urine_neg_1_p1-a1_1_4095.d")
 
 ### peak grouping ####
-param <- GroupDensityParam(rerun = F, plot_density = F, mz_bin_size = 0.015)
-dereplication_param <- DereplicatePeaksParam(mz_tol = 0.015/2, mobility_tol = 0.015/2, rt_tol = 5, rerun = F, order_column = 'area')
+param <- GroupDensityParam(rerun = FALSE, plot_density = FALSE, mz_bin_size = 0.015)
+dereplication_param <- DereplicatePeaksParam(mz_tol = 0.015/2, 
+                                             mobility_tol = 0.015/2,
+                                             rt_tol = 5, 
+                                             order_column = 'area',
+                                             rerun = FALSE)
 tims_data <- GroupPeaks(tims_data, param, dereplication_param)
 
 ### match sample between runs ####
-param <- MatchBetweenRunParam(rerun = F, 
+param <- MatchBetweenRunParam(rerun = FALSE,
                               peak_span_eim = 13,
                               peak_span_eic = 11)
 tims_data <- MatchBetweenRuns(tims_data, param)
 
 ### finalize feature tbale ####
-param <- FinalizeFeatureParam(rerun = F,
+param <- FinalizeFeatureParam(rerun = FALSE,
                               col_max = 'target_intensity')
 tims_data <- FinalizeFeatures(tims_data, param)
 
 ### peak filling ####
-param <- FillPeakParam(rerun = F)
+param <- FillPeakParam(rerun = FALSE)
 tims_data <- FillPeaks(tims_data, param)
 
 ### metabolite identification ####
@@ -108,7 +116,7 @@ tims_data <- IdentifyPeaks(tims_data,
                            param,
                            match_para,
                            combine_para,
-                           rt_exp_file = './rt.csv',  # if RT calibration file is provided
+                           rt_exp_file = './rt.csv', # if RT calibration file is provided
                            demo_mode = TRUE)
 ```
 
@@ -143,13 +151,13 @@ After the data processing work done, a folder name 'results' would be generated 
 
 ![Example results](extra/imgs/result.png)
 
-The main results is listed following:
+The main results are listed following:
 - feature table named "features_filled.csv"
 - MS2 spectral file named "spectra.msp" 
 - the multidimensional match result named "result3_ScoreCombine_refined_level.csv"
 - an intermediate data called "spec_searched", containing m/z, RT and CCS match candidates to run MS-FINDER (version 3.24).
 
-To run additional MSFinder filtering, users can run the demo [scripts we](extra/ForMSFinder/combine_final_result.R) and [MSFinder parameters](extra/ForMSFinder/MsfinderConsoleApp-Param.txt) provided here under Windows OS.
+To run additional MSFinder filtering, users can run the demo [scripts](extra/ForMSFinder/combine_final_result.R) and [MSFinder parameters](extra/ForMSFinder/MsfinderConsoleApp-Param.txt) provided here under Windows OS.
 After running MS-FINDER and combining with "result3_ScoreCombine_refined_level.csv", users could obtain the final multidimensional match result named "ScoreCombine.csv" with the provided R script.
  
 # License
