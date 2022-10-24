@@ -102,15 +102,15 @@ setMethod(
     wd0 <- getwd()
     setwd(object@experiment@wd)
     object@.processHistory <- c(object@.processHistory, param)
-    
+
     message("Querying tims data...")
-    
+
     param_list <- as.list(param)
     par_idx <- .gen_parallel_indexes(length(object@files), object@experiment@BPPARAM$workers)
-    
+
     files <- .tmp_files(object@files, object@experiment@tmp_dir, 'tims_data')
     names(files) <- object@files
-    
+
     tims_data_files <- do.call(c, apply(par_idx, 1, function(dr) {
       idxs <- seq(dr[1], dr[2])
       cat('processing files: ', dr[1], '-', dr[2], '\n')
@@ -122,7 +122,7 @@ setMethod(
     }, simplify = FALSE))
     names(tims_data_files) <- object@files
     object@tmp_data_files$tims_data_files <- tims_data_files
-    
+
     setwd(wd0)
     return(object)
   })
@@ -240,7 +240,6 @@ setMethod(
                         sub_dir)
 
     object@peaks <- do.call(rbind, lapply(seq_along(derep_files), function(idx) {
-      # browser()
       precursor_bins <- readRDS(derep_files[idx])
       spectra_data <- readRDS(object@tmp_data_files$spectra_files[idx])
       peaks <- object@peaks[object@peaks$smp_idx == idx, , drop = FALSE]
@@ -368,20 +367,6 @@ setMethod(
       names(res) <- object@files[query_indexes[idxs]]
       return(res)
     }, simplify = FALSE))
-    # arg_list <- lapply(query_indexes, function(query_index) {
-    #   c(list("peak_ref" = peaks[peaks$smp_idx == ref_index, , drop = FALSE],
-    #          "peak_query" = peaks[peaks$smp_idx == query_index, , drop = FALSE],
-    #          "spectra" = spectra_all[names(spectra_all) %in% rownames(peaks[peaks$smp_idx %in% c(ref_index,
-    #                                                                                              query_index),
-    #                                                                     , drop = FALSE])],
-    #          "rt_range" = object@experiment@rt_range,
-    #          "rt_tol" = param@rt_tol_landmark,
-    #          "res_define_at" = object@experiment@res_define_at),
-    #     param_list)
-    # })
-    # names(arg_list) <- names(files[query_indexes])
-    # rt_correction_data <- .parallel_parser(".correct_rt_landmarks", arg_list, files,
-    #                                        object@experiment@BPPARAM, TRUE, TRUE)
 
     for (smp in names(rt_correction_data)) {
       peaks$rt_align[peaks$smp_idx == match(smp, names(files))] <- rt_correction_data[[smp]]$rt
@@ -390,8 +375,6 @@ setMethod(
     files <- .tmp_files(paste('pool_data', 'ref', ref_index, num_pools, 'pools', seq(num_pools), sep = '_'),
                         object@experiment@tmp_dir, 'peak_alignment_pools')
 
-    # idx_from <- seq(from = 1, to = length(query_indexes), by = ceiling(length(query_indexes) / num_pools))
-    # idx_to <- c(idx_from[-1] - 1, length(query_indexes))
     arg_list <- apply(par_idx, 1, function(dr) {
       idxs <- seq(dr[1], dr[2])
       c(list("ref_index" = ref_index,
@@ -467,8 +450,6 @@ setMethod(
     peaks$rt_align <- peaks$rt
     peaks$peak_idx <- rownames(peaks)
 
-    # spectra_all <- .get_peak_spectra(peaks, object@tmp_data_files$spectra_files_dereplicaters,
-    #                                  param@min_num_fragments, update_info = TRUE)
     files <- .tmp_files(paste(object@files, 'ref', ref_index, sep = '_'),
                         object@experiment@tmp_dir, 'rt_correction/landmarks')
     names(files) <- object@files
@@ -513,8 +494,8 @@ setMethod(
          main = 'RT Correction')
     abline(h=0)
     for (idx in seq(length(object@files))[-ref_index]) {
-      x = tims_data@peaks[tims_data@peaks$smp_idx == idx, 'rt']
-      x_diff =tims_data@peaks[tims_data@peaks$smp_idx == idx, 'rt'] - tims_data@peaks[tims_data@peaks$smp_idx == idx, 'rt_align']
+      x <- tims_data@peaks[tims_data@peaks$smp_idx == idx, 'rt']
+      x_diff <- tims_data@peaks[tims_data@peaks$smp_idx == idx, 'rt'] - tims_data@peaks[tims_data@peaks$smp_idx == idx, 'rt_align']
       lines(sort(x), x_diff[order(x)], type = 'l', col = idx)
     }
     dev.off()
@@ -777,6 +758,7 @@ setMethod(
     return(object)
   })
 
+
 #' @export
 setMethod(
   "IdentifyPeaks",
@@ -784,11 +766,10 @@ setMethod(
   function(object,
            search_param, match_param, combine_param,
            lib_file = NULL,
-           rt_exp_file=NULL, rt_ref_file=NULL, 
+           rt_exp_file=NULL, rt_ref_file=NULL,
            level3_lib_file = NULL, level3_lib_info = NULL,
            demo_mode = FALSE
-           ) {
-    # browser()
+  ) {
     wd0 <- getwd()
     object <- tims_data
     setwd(object@experiment@wd)
@@ -809,9 +790,15 @@ setMethod(
     }
 
     if (demo_mode) {
-
       lib_data <- SpectraTools:::ReadSpectraLib(system.file(package = pkg, "library",
-                                                           paste0('tims', object@experiment@ion_mode, '.lib')))
+                                                            paste0('tims', object@experiment@ion_mode, '.lib')))
+      level3_lib_file <- system.file('library',
+                                     'msfinderpos',
+                                     package = pkg)
+
+      level3_lib_info <- system.file('library',
+                                     'ms1info',
+                                     package = pkg)
     } else {
       lib_data <- SpectraTools::ParseSpectra(SpectraTools::ParseSpectraParam('msp',
                                                                              labelKeep = NULL,
@@ -821,15 +808,14 @@ setMethod(
                                                                              thrIntensityAbs = 0,
                                                                              ppmPrecursorFilter = 20),
                                              lib_file)
-
+      level3_lib_file <- level3_lib_file
+      level3_lib_info <- level3_lib_info
     }
-    # browser()
 
     lib_data <- SpectraTools::setRT(lib_data, object@experiment@lc_column)
-
     exp_data <- SpectraTools::SpectraData(object@features, object@spectra)
-    # browser()
     rt_ref <- rt_exp <- NULL
+
     if (search_param@scoreRT) {
       if (is.null(rt_ref_file)) {
         rt_ref_file <- system.file('rt_calibration',
@@ -849,85 +835,102 @@ setMethod(
     lib_data@ccsInfo$`[M-H]-` <- as.numeric(lib_data@ccsInfo$`[M-H]-`)
     lib_data@ccsInfo$`[M+Na-2H]-` <- as.numeric(lib_data@ccsInfo$`[M+Na-2H]-`)
     lib_data@ccsInfo$`[M+HCOO]-` <- as.numeric(lib_data@ccsInfo$`[M+HCOO]-`)
-    # browser()
-    
+
     spec_searched <- SpectraTools::SearchSpectra(exp_data, lib_data, search_param,
-                                                rtcalExp = rt_exp, rtcalRef = rt_ref,
-                                                adductTable = adduct_table)
+                                                 rtcalExp = rt_exp, rtcalRef = rt_ref,
+                                                 adductTable = adduct_table)
     # score_match <- BiocParallel::bplapply(spec_searched, function(specData) {
-    score_match <- lapply(spec_searched, function(specData) { 
-      # browser()
-      # cat(names(specData))
-      # specData <- spec_searched[["#989"]]
+    score_match <- lapply(spec_searched, function(specData) {
       dataExp <- specData$dataExp
       dataRef <- specData$dataRef
       dataRef <- SpectraTools::SpectraData(info = dataRef@info,
                                            spectra = dataRef@spectra)
       SpectraTools::MatchSpectra(dataExp, dataRef, match_param)
     })
-    # browser()
+
     score_match <- score_match[!sapply(score_match, is.null)]
-    # browser()
+
     cat("Plotting MSMS match figures ...\n")
     dirPlot <- file.path(object@experiment@tmp_dir, "MSMSMatchPlot")
     PlotMatchResult(score_match, expinfo = exp_data@info, dirPlot, addname = FALSE)
     scTable <- do.call(rbind, lapply(score_match, SpectraTools::GenOutputScore,
                                      match_param@cutoff, type = "metabolites"))
-    
+
     pkTable <- MergeResTable(exp_data@info, scTable)
     pkTable <- add_level_class(pkTable, lib_data)
     write.csv(pkTable, file.path(object@experiment@res_dir, "result1_MSMSmatch.csv"),
               row.names = FALSE)
-    
+
     cat("Finalizing scores ...\n")
     # score_match <- BiocParallel::bplapply(score_match, function(sc) {
     score_match <- lapply(score_match, function(sc) {
       SpectraTools::CombineScore(sc, combine_param)
     })
     score_match <- score_match[!sapply(score_match, is.null)]
-    # browser()
+
     scTable <- do.call(rbind, lapply(score_match, SpectraTools::GenOutputScore,
                                      type = "metabolites"))
     pkTable <- MergeResTable(exp_data@info, scTable)
     pkTable <- add_level_class(pkTable, lib_data)
     write.csv(pkTable, file.path(object@experiment@res_dir, "result2_ScoreCombine.csv"),
               row.names = FALSE)
-    
+
     ### the final table : remain the highest level for each feature #####
     cat("Refine confidence level ...\n")
-    scTable <- remain_the_highest_level_res(scTable, 
+    scTable <- remain_the_highest_level_res(scTable,
                                             lib_data)
-    # browser()
     pkTable <- MergeResTable(exp_data@info, scTable)
     pkTable <- add_level_class(pkTable, lib_data)
     write.csv(pkTable, file.path(object@experiment@res_dir, "result3_ScoreCombine_refined_level.csv"),
               row.names = FALSE)
-    
+
     cat("Generate ms1 match result for MS-FIDNER ...\n")
-    # browser()
     idx_not_id <- which(!row.names(exp_data@info) %in% row.names(scTable))
-    
+
     new_exp_info <- exp_data@info[idx_not_id, ]
     new_exp_spec <- exp_data@spectra[idx_not_id]
     names(new_exp_spec) <- row.names(new_exp_info)
-    new_expe_data <- SpectraTools::SpectraData(new_exp_info, 
+    new_expe_data <- SpectraTools::SpectraData(new_exp_info,
                                                new_exp_spec)
     new_adduct_table <- adduct_table[1, ]
-    
-    level3_db <- gen_lib(lib_file = level3_lib_file, 
-                         info_file = level3_lib_info, 
+
+    level3_db <- gen_lib(lib_file = level3_lib_file,
+                         info_file = level3_lib_info,
                          col_lib = c('Ion_mode', 'ExactMass', 'level'))
-    
+
     level3_db@ccsInfo$`[M-H]-` <- as.numeric(level3_db@ccsInfo$`[M-H]-`)
     level3_db <- SpectraTools::setRT(level3_db, object@experiment@lc_column)
-    
+
     new_spec_searched <- SpectraTools::SearchSpectra(new_expe_data, level3_db, search_param,
                                                      rtcalExp = rt_exp, rtcalRef = rt_ref,
                                                      adductTable = new_adduct_table)
-    saveRDS(new_spec_searched, 
-            file.path(object@experiment@res_dir, "spec_searched_for_msfinder"), 
+
+    ms1_info <- readRDS(level3_lib_info)
+    for(i in seq(length(new_spec_searched))){
+      # cat(i, '\t')
+      idx <- match(new_spec_searched[[i]]$dataRef@info$labid,
+                   ms1_info$id)
+      new_spec_searched[[i]]$dataRef@info$exact_mass <- ms1_info$mass_cal[idx]
+    }
+
+    rm(i, idx)
+
+    spec_searched <- new_spec_searched
+    spec_searched <- lapply(seq(length(spec_searched)), function(i){
+      res <- list()
+      res$dataExp <- list()
+      res$dataExp$info <- data.frame(spec_searched[[i]]$dataExp@info)
+      res$dataExp$spectra <- spec_searched[[i]]$dataExp@spectra
+      res$dataRef <- list()
+      res$dataRef$info <- spec_searched[[i]]$dataRef@info
+      return(res)
+    })
+    # saveRDS(spec_searched, './spec_searched', version = 2)
+
+    saveRDS(spec_searched,
+            file.path(object@experiment@res_dir, "spec_searched"),
             version = 2)
-    
+
     setwd(wd0)
     return(object)
   })
@@ -939,7 +942,7 @@ PlotMatchResult <- function(scoreMatch, expinfo, dirPlot,
   if (!dir.exists(dirPlot)) {
     dir.create(dirPlot)
   }
-  
+
   # BiocParallel::bplapply(names(scoreMatch), function(nm) {
   lapply(names(scoreMatch), function(nm) {
     # cat(nm, '\t')
@@ -947,7 +950,7 @@ PlotMatchResult <- function(scoreMatch, expinfo, dirPlot,
     pkname <- expinfo[nm, "name"]
     matchScore <- scoreMatch[[nm]]
     if (!is.null(matchScore)) {
-      filePlot = file.path(dirPlot, pkname)
+      filePlot <- file.path(dirPlot, pkname)
       SpectraTools::PlotMirror(matchScore, pkname, addname = addname,
                                plotPNG = plotPNG,
                                plotPDF = TRUE,
@@ -973,7 +976,7 @@ MergeResTable <- function(info, res) {
 }
 
 
-add_level_class <- function(pkTable, 
+add_level_class <- function(pkTable,
                             lib_data){
   # parse the labid and match with the lib_data_info
   extra_info <- lapply(pkTable$labids, function(ids){
@@ -991,40 +994,39 @@ add_level_class <- function(pkTable,
     superclass <- paste0(lib_data@info$superclass[idx], collapse = ';')
     class <- paste0(lib_data@info$class[idx], collapse = ';')
     subclass <- paste0(lib_data@info$subclass[idx], collapse = ';')
-    
-    return(data.frame(name = name, 
+
+    return(data.frame(compound_name = name,
                       database = database,
-                      formula = formula, 
-                      exact_mass = exact_mass, 
-                      smiles = smiles, 
-                      inchi = inchi, 
+                      formula = formula,
+                      exact_mass = exact_mass,
+                      smiles = smiles,
+                      inchi = inchi,
                       inchikey = inchikey,
-                      confidence_level = level, 
-                      kingdom = kingdom, 
-                      superclass = superclass, 
-                      class = class, 
+                      confidence_level = level,
+                      kingdom = kingdom,
+                      superclass = superclass,
+                      class = class,
                       subclass = subclass))
   })
   extra_info <- do.call(rbind, extra_info)
   return(cbind(pkTable, extra_info))
 }
 
-remain_the_highest_level_res <- function(scTable, 
+remain_the_highest_level_res <- function(scTable,
                                          lib_data){
   res_refined <- lapply(seq(nrow(scTable)), function(t){
     temp_row <- scTable[t, ]
     id <- strsplit(temp_row$labids, ';')[[1]]
     n_id <- length(id)
-    
+
     if(n_id <= 1){
       return(temp_row)
     }else{
-      # browser()
       level <- as.numeric(lib_data@info$level[match(id,
                                                     lib_data@info$labid)])
       highest_level <- min(level)
       final_idx <- which(level == highest_level)
-      
+
       final_res <- apply(temp_row, 2, function(v){
         remain_v <- strsplit(v, ';')[[1]][final_idx]
         return(paste0(remain_v, collapse = ';'))

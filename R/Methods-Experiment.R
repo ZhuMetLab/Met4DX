@@ -10,7 +10,6 @@ setMethod(
   "TimsData",
   signature = "Experiment",
   function(experiment) {
-    # browser()
     wd0 <- getwd()
     setwd(experiment@wd)
 

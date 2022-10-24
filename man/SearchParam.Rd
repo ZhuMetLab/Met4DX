@@ -28,8 +28,8 @@ SearchParam(
 
 \item{toleranceRT}{\code{numeric (2)} c(Tmin, Tmax), RT range for trapezoidal score.
 \itemize{
-   \item[*] Tmin: Topline for trapezoidal score
-   \item[*] Tmax: Baseline for trapezoidal score
+   \item Tmin: Topline for trapezoidal score
+   \item Tmax: Baseline for trapezoidal score
  }}
 
 \item{scoreCCS}{\code{logical} if comparing CCS}
@@ -37,8 +37,8 @@ SearchParam(
 \item{toleranceCCS}{\code{numeric (2)} c(Cmin, Cmax), CCS range for trapezoidal
  score.
 \itemize{
-   \item[*] Cmin: Topline for trapezoidal score
-   \item[*] Cmax: Baseline for trapezoidal score
+   \item Cmin: Topline for trapezoidal score
+   \item Cmax: Baseline for trapezoidal score
  }}
 
 \item{typeCCS}{\code{character} CCS tolerance type, either "percentage" or

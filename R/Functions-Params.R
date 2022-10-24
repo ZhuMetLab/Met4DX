@@ -58,7 +58,7 @@ FinalizeFeatureParam <- function(
   min_fraction = 0.5,
   msms_assign_method = "highest",
   min_num_samples = 1,
-  valid_eic_peak = TRUE,
+  valid_eic_peak = FALSE,
   valid_eim_peak = TRUE,
   snthreshold_eic = NULL,
   snthreshold_eim = NULL,
@@ -630,15 +630,15 @@ BinPrecursorParam <- function(
 #' @param scoreRT \code{logical} if comparing RT
 #' @param toleranceRT \code{numeric (2)} c(Tmin, Tmax), RT range for trapezoidal score.
 #' \itemize{
-#'    \item[*] Tmin: Topline for trapezoidal score
-#'    \item[*] Tmax: Baseline for trapezoidal score
+#'    \item Tmin: Topline for trapezoidal score
+#'    \item Tmax: Baseline for trapezoidal score
 #'  }
 #' @param scoreCCS \code{logical} if comparing CCS
 #' @param toleranceCCS \code{numeric (2)} c(Cmin, Cmax), CCS range for trapezoidal
 #'  score.
 #' \itemize{
-#'    \item[*] Cmin: Topline for trapezoidal score
-#'    \item[*] Cmax: Baseline for trapezoidal score
+#'    \item Cmin: Topline for trapezoidal score
+#'    \item Cmax: Baseline for trapezoidal score
 #'  }
 #' @param typeCCS \code{character} CCS tolerance type, either "percentage" or
 #'  "absolute"
