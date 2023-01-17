@@ -6,16 +6,16 @@
 # Copyright (c) 2022- ZhuMSLab ALL right reserved
 
 .read_spectra <- function(
-  data_file,
-  intensity_from = c("pepmass", "ms2_intensity"),
-  include_precursor = TRUE,
-  mz_tol = 20,
-  denoise = TRUE,
-  int_threshold_abs = 30,
-  int_threshold_rel = 0.01,
-  ms2range = NULL,
-  res_define_at = 200,
-  ...
+    data_file,
+    intensity_from = c("pepmass", "ms2_intensity"),
+    include_precursor = TRUE,
+    mz_tol = 20,
+    denoise = TRUE,
+    int_threshold_abs = 30,
+    int_threshold_rel = 0.01,
+    ms2range = NULL,
+    res_define_at = 200,
+    ...
 ) {
   intensity_from <- match.arg(intensity_from)
   param <- SpectraTools::ParseSpectraParam(
@@ -61,7 +61,7 @@
                                             thrIntensityRel = int_threshold_rel,
                                             resDefineAt = res_define_at)
   }
-
+  
   if (intensity_from == "ms2_intensity") {
     spectra@info[, "intensity"] <- unname(sapply(spectra@spectra, function(spec) {
       sum(sort(spec$intensity, decreasing = TRUE)[1:min(10, nrow(spec))])
@@ -210,7 +210,11 @@
   all_columns <- .set_opentims()
   D <- opentimsr::OpenTIMS(data_file)
   
-  precursor_info <- opentimsr::table2df(D, 'Precursors')$Precursors[, c("Id", "Parent")]
+  # precursor_info <- opentimsr::table2df(D, 'Precursors')$Precursors[, c("Id", "Parent")]
+  precursor_info <- NA
+  if ('Precursors' %in% opentimsr::tables_names(D)) {
+    precursor_info <- opentimsr::table2df(D, 'Precursors')$Precursors[, c("Id", "Parent")]
+  }
   frame_id <- opentimsr::table2df(D, 'Frames')$Frames
   
   ms1_frame_info <- frame_id[frame_id$MsMsType == 0, c("Id", "Time")]
@@ -541,7 +545,7 @@
   names(peak_quality_tmp) <- c("eim_peak", "eic_peak", "eim_sn", "eic_sn", "eim_baseline", "eic_baseline")
   
   res <- apply(info[, c("mz", intensity_col, mobility_col, "mz_tol", "target_frame")], 1, function(dr) {
-    
+    # browser()
     mz <- dr["mz"]
     mobility <- dr[mobility_col]
     mz_tol <- dr["mz_tol"]

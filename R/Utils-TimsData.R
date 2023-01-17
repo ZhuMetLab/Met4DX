@@ -6,6 +6,7 @@
 # Copyright (c) 2022- ZhuMSLab ALL right reserved
 
 .get_eims2 <- function(frame_list, scan_mobility, mz, mz_tol, mobility, mobility_tol) {
+  # browser()
   target_mobility <- scan_mobility[abs(scan_mobility - mobility) <= mobility_tol]
   target_scans <- as.numeric(names(target_mobility))
   temp <- rep(0, length(target_mobility))
@@ -30,7 +31,7 @@
   mz_diff <- abs(frame$mz - mz)
   is_keep <- (mz_diff <= mz_tol) & (frame$scan %in% target_scans)
   frame <- frame[is_keep, , drop = FALSE]
-  if (nrow(frame) == 0) {
+  if (nrow(frame) == 0 | all(frame$intensity == 0)) {
     attr(temp, "mz") <- mz
     return(temp)
   }

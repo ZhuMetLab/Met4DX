@@ -42,6 +42,6 @@ vignettes/*.pdf
 build/
 inst/library
 *.o
-src/*.dll
-src/*.so
+*.dll
+*.so
 .Rbuildignore

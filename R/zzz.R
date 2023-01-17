@@ -13,7 +13,7 @@
 #' to generate feature table and corresponding MSMS spectra.
 #' @docType package
 #' @author Mingdu Luo(luomd@sioc.ac.cn), Yandong Yin (\email{yinyandong@@sioc.ac.cn})
-#' @import SpectraTools opentimsr BiocParallel ggpmisc smoother Rcpp splus2R fastmatch
+#' @import SpectraTools opentimsr BiocParallel ggpmisc smoother Rcpp splus2R fastmatch mzR
 #' @importFrom Rcpp evalCpp
 #' @useDynLib Met4DX
 #' @name Met4DX

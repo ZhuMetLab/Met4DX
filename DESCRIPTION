@@ -1,17 +1,17 @@
 Package: Met4DX
 Type: Package
 Title: What the package does (short line)
-Version: 1.2.5
+Version: 2.0.0
 Date: 2022-01-17
 Author: Mingdu Luo, Yandong Yin
 Encoding: UTF-8
 Maintainer: Yandong Yin <zhulab@sioc.ac.cn>
 Description: More about what it does (maybe more than one line)
 Imports: SpectraTools (>= 0.2.8), BiocParallel, opentimsr, ggpmisc,
-        smoother, Rcpp, splus2R, fastmatch
+        smoother, Rcpp, splus2R, fastmatch, mzR
 LinkingTo: Rcpp
 License: CC BY-NC-ND 4.0
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.2
 Suggests: testthat (>= 3.0.0)
 NeedsCompilation: yes
 Packaged: 2022-10-2316:19:30 UTC; YinYD
