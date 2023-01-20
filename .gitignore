@@ -44,4 +44,4 @@ inst/library
 *.o
 *.dll
 *.so
-.Rbuildignore
+.DS_Store
