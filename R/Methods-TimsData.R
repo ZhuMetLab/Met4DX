@@ -512,11 +512,18 @@ setMethod(
          ylab = 'RT shift (s)',
          main = 'RT Correction')
     abline(h=0)
+    # for (idx in seq(length(object@files))[-ref_index]) {
+    #   x = tims_data@peaks[tims_data@peaks$smp_idx == idx, 'rt']
+    #   x_diff =tims_data@peaks[tims_data@peaks$smp_idx == idx, 'rt'] - tims_data@peaks[tims_data@peaks$smp_idx == idx, 'rt_align']
+    #   lines(sort(x), x_diff[order(x)], type = 'l', col = idx)
+    # }
+    
     for (idx in seq(length(object@files))[-ref_index]) {
-      x = tims_data@peaks[tims_data@peaks$smp_idx == idx, 'rt']
-      x_diff =tims_data@peaks[tims_data@peaks$smp_idx == idx, 'rt'] - tims_data@peaks[tims_data@peaks$smp_idx == idx, 'rt_align']
+      x = object@peaks[object@peaks$smp_idx == idx, 'rt']
+      x_diff =object@peaks[object@peaks$smp_idx == idx, 'rt'] - object@peaks[object@peaks$smp_idx == idx, 'rt_align']
       lines(sort(x), x_diff[order(x)], type = 'l', col = idx)
     }
+    
     dev.off()
     setwd(wd0)
     return(object)
@@ -861,6 +868,7 @@ setMethod(
       # cat(names(specData))
       # specData <- spec_searched[["#989"]]
       dataExp <- specData$dataExp
+      dataExp@spectra[[1]] <- as.data.frame(dataExp@spectra[[1]])
       dataRef <- specData$dataRef
       dataRef <- SpectraTools::SpectraData(info = dataRef@info,
                                            spectra = dataRef@spectra)
@@ -906,6 +914,10 @@ setMethod(
     
     cat("Generate ms1 match result for MS-FIDNER ...\n")
     # browser()
+    idx <- which(row.names(exp_data@info) %in% names(exp_data@spectra))
+    exp_data <- SpectraTools::SpectraData(info = exp_data@info[idx, ], 
+                                          spectra = exp_data@spectra)
+    rm(idx)
     idx_not_id <- which(!row.names(exp_data@info) %in% row.names(scTable))
     
     new_exp_info <- exp_data@info[idx_not_id, ]

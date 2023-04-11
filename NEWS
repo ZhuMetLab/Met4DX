@@ -1,0 +1,9 @@
+Version 2.0.0 (20230120)
+-------------
+o Initial release version
+
+
+Version 2.0.1 (20230410)
+-------------
+o Fix bug of 4D match
+o Fix bug of outputting RT alignment plot

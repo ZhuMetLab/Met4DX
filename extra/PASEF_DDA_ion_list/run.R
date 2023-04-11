@@ -46,9 +46,19 @@ param <- FillPeakParam(rerun = T)
 tims_data <- FillPeaks_IOI(tims_data, param)
 
 
-saveRDS(tims_data,
-        file = 'tims_data', 
-        version = 2)
-
-
+### metabolite identification ####
+param <- SearchParam(typeCCS = 'percentage',
+                     toleranceCCS = c(3,6), # ccs match tolerance (%)
+                     toleranceRT = c(30, 90)) # RT match tolerance (second)
+match_para <- MatchParam(methodMatch = 'direct',
+                         methodScore = 'dp',
+                         intensityNormedMethod = 'maximum',
+                         cutoff = 0.8) # the cutoff of MS2 spectral match
+combine_para <- CombineParam(scoreMSMS = 'reverse')
+tims_data <- IdentifyPeaks(tims_data,
+                           param,
+                           match_para,
+                           combine_para,
+                           rt_exp_file = './rt.csv', # if RT calibration file is provided
+                           demo_mode = TRUE) # turn on the demo mode to use the metabolite library in Met4DX
 

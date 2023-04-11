@@ -45,3 +45,4 @@ inst/library
 *.dll
 *.so
 .DS_Store
+.Rbuildignore

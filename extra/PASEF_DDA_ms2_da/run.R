@@ -66,7 +66,7 @@ tims_data <- FillPeaks(tims_data, param)
 
 ### metabolite identification ####
 param <- SearchParam(typeCCS = 'percentage',
-                     toleranceCCS = c(3,6), # cca match tolerance (%)
+                     toleranceCCS = c(3,6), # ccs match tolerance (%)
                      toleranceRT = c(30, 90)) # RT match tolerance (second)
 match_para <- MatchParam(methodMatch = 'direct',
                          methodScore = 'dp',

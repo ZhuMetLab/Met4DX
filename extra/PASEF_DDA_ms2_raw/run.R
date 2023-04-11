@@ -74,7 +74,7 @@ tims_data <- FillPeaks(tims_data, param)
 
 ### metabolite identification ####
 param <- SearchParam(typeCCS = 'percentage',
-                     toleranceCCS = c(3,6), # cca match tolerance (%)
+                     toleranceCCS = c(3,6), # ccs match tolerance (%)
                      toleranceRT = c(30, 90)) # RT match tolerance (second)
 match_para <- MatchParam(methodMatch = 'direct',
                          methodScore = 'dp',
@@ -85,5 +85,5 @@ tims_data <- IdentifyPeaks(tims_data,
                            param,
                            match_para,
                            combine_para,
-                           rt_exp_file = './rt_neg.csv', # if RT calibration file is provided
+                           rt_exp_file = './rt.csv', # if RT calibration file is provided
                            demo_mode = TRUE) # turn on the demo mode to use the metabolite library in Met4DX
