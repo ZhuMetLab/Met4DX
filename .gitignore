@@ -40,7 +40,6 @@ vignettes/*.pdf
 .lintr
 .idea/
 build/
-inst/library
 *.o
 *.dll
 *.so
