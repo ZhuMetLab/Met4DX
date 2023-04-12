@@ -46,3 +46,4 @@ inst/library
 *.so
 .DS_Store
 .Rbuildignore
+.idea
